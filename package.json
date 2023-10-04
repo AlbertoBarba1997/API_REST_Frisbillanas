@@ -1,0 +1,11 @@
+{
+  "name": "api_rest_fisbillanas",
+  "version": "1.0.0",
+  "description": "API REST / Servidor para web Frisbillanas, proyecto final de Juan Alberto Barba Aguilar",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Juan Alberto Barba Aguilar",
+  "license": "ISC"
+}
