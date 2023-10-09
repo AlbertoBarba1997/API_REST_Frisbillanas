@@ -4,10 +4,11 @@ const User = require("../models/User");
 const jwt = require("../services/jwt");
 const mongoosePagination = require("mongoose-pagination");
 const fs = require("fs");
+const path = require("path");
 
 
 
-//Acciones de prueba
+/// 00. Accion de prueba
 
 const pruebaUser = (req, res)=> {
 
@@ -311,8 +312,6 @@ const update = (req, res) =>{
 
 }
 
-
-
 /// 06. Subir imagen avatar
 const uploadAvatar = (req, res)=> {
 
@@ -371,10 +370,46 @@ const uploadAvatar = (req, res)=> {
             file: req.file
             });
         })
-      
-    }   
+     
+    }     
+}
+
+/// 00. Accion de prueba
+
+const getAvatar = (req, res)=> {
+    //Sacar el parametro de la url
+    const file = req.params.file;
+
+    // Montar el path real de la imagen
+    const filepath= "./uploads/avatars/"+file;
+
+    //Comprobar que existe
+    fs.stat(filepath, (error, exist)=> {
+        if(!exist){
+            return res.status(404).send({
+                status: "error",
+                message: "No existe la imagen"
+            })
+        }
+        if(error){
+            return res.status(404).send({
+                status: "error",
+                message: "Error al consular la BBDD",
+                error: error
+            })
+        }
+        //Devolver el archivo
+        return res.sendFile(path.resolve(filepath));  
+         //El path es un modulo que con su metodo .resolve me da la ruta absoluta
+        
+
+    })
+
+
    
 }
+
+
 
 
 
@@ -390,5 +425,6 @@ module.exports = {
     getUser,
     listUsers,
     update,
-    uploadAvatar
+    uploadAvatar,
+    getAvatar
 }
