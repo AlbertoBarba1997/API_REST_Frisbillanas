@@ -1,10 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const UserController = require("../controllers/user");
+const auth = require ("../middlewares/auth");
 
 //Definir rutas
-router.get("/prueba_user", UserController.pruebaUser);
-router.post("/alta", UserController.register);
+router.get("/loguin", UserController.login);                        //Es necesario logear para hacer la gran mayoria de peticiones restantes, que requeriran del token en el mdlw de auth.
+
+router.get("/prueba_user", auth.auth, UserController.pruebaUser);
+router.post("/alta", auth.auth, UserController.register);
+router.get("/getUser/:id", auth.auth, UserController.getUser);
+router.get("/listUsers/:usersPorPagina?/:pagina?/", auth.auth, UserController.listUsers);
+
+
 
 //Exportar router
 module.exports = router;
+
+
