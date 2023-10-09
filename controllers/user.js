@@ -221,10 +221,94 @@ const listUsers = (req, res) => {
 
 const update = (req, res) =>{
 
-    return res.status(200).send({ 
-            status:"success",
-            message: "Usuario actualizado correctamente"       
-    })
+    //Recoger info del usuario a actualizar y el logueado
+    let userToUpdate=req.body;
+    const userLogueado= req.user;
+    
+
+    //Comprobar que llegue el paramentro id, correo y dni a updatear 
+    if(!userToUpdate.id || !userToUpdate.dni || !userToUpdate.email){
+        return res.status(400).send({
+            status:"error",
+            message: "Faltan por enviar el 'id', 'email' o 'dni' del user a actualizar por el 'Body'",
+            
+        });
+    }
+
+    //Comprobar que el usuario sea Admin (role:1) o el mismo user que se quiere editar a el mismo
+    let role_logueado= userLogueado.role;
+    let id_logueado= userLogueado.id;
+
+    const id_userToUpdate = userToUpdate.id;
+   
+
+    console.log("idUser:"+ id_userToUpdate +"  id_logueado:"+ id_logueado);
+
+    if(id_userToUpdate != id_logueado && role_logueado!= 1){
+        return res.status(401).send({
+            status:"error",
+            message: "Debe de estar logueado con un TOKEN de usuario igual al que va a editar, o con rol de Admin (1)",
+            
+        });
+
+    }
+
+    
+    /* 
+    -INTERESANTE: esta consulta aunque venga vacia (porque por ejemplo editemos el dni y email y no coincida con ningun)
+        dejará vacio el 'users', pero igualmente se ejecutara el .them() aunquie haya 0 registros, a no ser que de error.
+    */ 
+    User.find({
+        $or: [
+            { email: userToUpdate.email }
+            ,{ dni: userToUpdate.dni },
+        ]
+    }).then(async (users) => {
+
+        // Comprobar si el DNI o email ya lo tiene cogido otro usuario (duplicate)
+        let paramDuplicate = false;
+
+        users.forEach(user => {
+            if(user && user._id != id_userToUpdate) paramDuplicate= true;
+        });
+
+        if (paramDuplicate) {
+            //Ya existe otro usuario con este correo o DNI
+            return res.status(200).send({
+                status: "duplicate",
+                message: "Ya existe otro usuario con este correo o DNI"
+            })
+        } else {
+            //Si no existe duplicado ,se crea el usuario
+            // Cifrar contraseña
+            if(userToUpdate.password){
+                let pwd = await bcrypt.hash(userToUpdate.password.toLowerCase(), 10);
+                userToUpdate.password = pwd;
+            }
+            
+            //Buscar y actualizar
+            User.findByIdAndUpdate(userToUpdate.id, userToUpdate, {new:true})
+                .then(async (userUpdated) => {
+                    return res.status(200).send({ 
+                        status:"success",
+                        message: "Usuario actualizado correctamente",
+                        userUpdated: userUpdated
+                    })
+
+                }).catch((err) => {
+                    console.log(err);
+                    return res.status(500).json({ status: "error", message: "Error en el update del usuario.", err });
+                });
+                
+
+
+        }
+    }).catch((err) => {
+
+        console.log(err);
+        return res.status(500).json({ status: "error", message: "Error en la consulta de usuarios." });
+    });
+
 }
 
 
@@ -239,5 +323,6 @@ module.exports = {
     register,
     login, 
     getUser,
-    listUsers
+    listUsers,
+    update
 }
