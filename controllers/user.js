@@ -3,6 +3,8 @@ const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const jwt = require("../services/jwt");
 const mongoosePagination = require("mongoose-pagination");
+const fs = require("fs");
+
 
 
 //Acciones de prueba
@@ -182,7 +184,7 @@ const getUser = (req, res) => {
 }
 
 
-// 04. Listado de usuarios
+/// 04. Listado de usuarios
 const listUsers = (req, res) => {
 
     //Controlar en que pagina estamos y cuantos elementos por pagina mostrará
@@ -219,13 +221,14 @@ const listUsers = (req, res) => {
     })
 }
 
+
+/// 05. Editar usuario
 const update = (req, res) =>{
 
     //Recoger info del usuario a actualizar y el logueado
     let userToUpdate=req.body;
     const userLogueado= req.user;
     
-
     //Comprobar que llegue el paramentro id, correo y dni a updatear 
     if(!userToUpdate.id || !userToUpdate.dni || !userToUpdate.email){
         return res.status(400).send({
@@ -241,7 +244,6 @@ const update = (req, res) =>{
 
     const id_userToUpdate = userToUpdate.id;
    
-
     console.log("idUser:"+ id_userToUpdate +"  id_logueado:"+ id_logueado);
 
     if(id_userToUpdate != id_logueado && role_logueado!= 1){
@@ -252,10 +254,8 @@ const update = (req, res) =>{
         });
 
     }
-
-    
     /* 
-    -INTERESANTE: esta consulta aunque venga vacia (porque por ejemplo editemos el dni y email y no coincida con ningun)
+    INTERESANTE: esta consulta aunque venga vacia (porque por ejemplo editemos el dni y email y no coincida con ningun)
         dejará vacio el 'users', pero igualmente se ejecutara el .them() aunquie haya 0 registros, a no ser que de error.
     */ 
     User.find({
@@ -297,7 +297,7 @@ const update = (req, res) =>{
 
                 }).catch((err) => {
                     console.log(err);
-                    return res.status(500).json({ status: "error", message: "Error en el update del usuario.", err });
+                    return res.status(500).json({ status: "error", message: "Error en el update del usuario. Compruebe el id introducido." });
                 });
                 
 
@@ -313,6 +313,71 @@ const update = (req, res) =>{
 
 
 
+/// 06. Subir imagen avatar
+const uploadAvatar = (req, res)=> {
+
+    // Recoger el fichero de imagen y comprobar que existe
+    if(!req.file){
+        return res.status(404).send({
+            status: "error",
+            message: "La peticion no incluye la imagen"
+        })
+    }
+    // Conseguir el nombre del archivo
+    let image = req.file.originalname;
+
+    // Sacar la extension del archivo
+    const imageSplit = image.split("\.");
+    const extension = imageSplit[1].toLowerCase();
+
+    console.log(req.file.size);
+    // Comprobar extension
+    if(extension != "png" && extension != "jpg" && extension != "jpeg" && extension != "gift"){
+        
+        // SI no es correcto, borrar archivo
+        const filePath = req.file.path; //Ruta donde segurarda el archivo
+        fs.unlinkSync(filePath)
+        return res.status(400).send({
+            status: "error",
+            message: "Extension del fichero invalida"
+        })
+
+    } else if( req.file.size > 5500000){
+        // SI el archivo pesa mas de 5MB lo borra
+        const filePath = req.file.path; //Ruta donde segurarda el archivo
+
+        fs.unlinkSync(filePath)
+        return res.status(400).send({
+            status: "error",
+            message: "El archivo pesa mas de 5MB, sube un archivo menos pesado"
+        })
+
+    } else{
+        // Si es correcto, actualizar en la BBDD
+        User.findOneAndUpdate({id: req.user.id}, {avatar: req.file.filename}, {new:true}, (error, userUpdated) =>{
+
+            console.log(error);
+            if(error || !userUpdated){
+                return res.status(500).send({
+                    status: "error",
+                    message: "Error en la subida del avatar"
+                })
+            }
+
+            //Devolver respuesta
+            return res.status(200).send({
+            status: "success",
+            userUpdated: userUpdated,
+            file: req.file
+            });
+        })
+      
+    }   
+   
+}
+
+
+
 
 
 
@@ -324,5 +389,6 @@ module.exports = {
     login, 
     getUser,
     listUsers,
-    update
+    update,
+    uploadAvatar
 }
