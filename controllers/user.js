@@ -312,6 +312,7 @@ const update = (req, res) =>{
 }
 
 
+
 /// 06. Subir imagen avatar
 const uploadAvatar = (req, res)=> {
 
