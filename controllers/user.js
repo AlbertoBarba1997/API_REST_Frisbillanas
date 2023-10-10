@@ -374,7 +374,7 @@ const uploadAvatar = (req, res)=> {
     }     
 }
 
-/// 00. Accion de prueba
+/// 07. Obtener avatar
 
 const getAvatar = (req, res)=> {
     //Sacar el parametro de la url
@@ -393,7 +393,7 @@ const getAvatar = (req, res)=> {
         }
         if(error){
             return res.status(404).send({
-                status: "error",
+                status: "error",  
                 message: "Error al consular la BBDD",
                 error: error
             })
@@ -408,6 +408,57 @@ const getAvatar = (req, res)=> {
 
    
 }
+
+
+/// 08. Baja de usuario
+const remove = (req, res) => {
+
+    console.log("Entra en remove");
+    // Recoger el id de la url y comprobar que viene correctamente.
+    let idEliminar = req.params.id;
+    
+
+    if (!idEliminar) {
+        return res.status(400).send({
+            status: "error",
+            message: "Debe de enviar el id del usuario a eliminar como paramentro en la URL."
+        })
+    }
+
+    // Comprobar que el usuario que va a realizar el remove sea admin (role:1)
+    const userLogueado = req.user;
+    if (userLogueado.role != 1) {
+        return res.status(401).send({
+            status: "error",
+            message: "Para eliminar otro usuario, el usuario logueado debe de tener rol de Admin."
+        })
+    }
+
+    // Buscar el usuario y si existe, eliminarlo
+    User.find({"_id":idEliminar}).remove().then(async (userRenmoved) => {
+
+        if (!userRenmoved && userRenmoved.length < 1) {
+            //Si no se encuentra usuario
+            return res.status(404).send({
+                status: "error",
+                message: "No se encuentra el usuario."
+            })
+        } else {
+
+            //Devolver resultado
+            return res.status(200).send({
+                message: "Se ha eliminado correctamente",
+                userRenmoved: userRenmoved
+            });
+        }
+    }).catch((err) => {
+
+        console.log(err);
+        return res.status(500).json({ status: "error", message: "Error en la consulta de usuarios." , error });
+    });
+
+}
+
 
 
 
@@ -426,5 +477,6 @@ module.exports = {
     listUsers,
     update,
     uploadAvatar,
-    getAvatar
+    getAvatar,
+    remove
 }

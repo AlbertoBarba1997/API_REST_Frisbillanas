@@ -27,7 +27,7 @@ router.get("/listUsers/:usersPorPagina?/:pagina?/", auth.auth, UserController.li
 router.put("/update", auth.auth, UserController.update);
 router.post("/uploadAvatar", [auth.auth, uploads.single("file0")], UserController.uploadAvatar);
 router.get("/getAvatar/:file", auth.auth, UserController.getAvatar);
-
+router.delete("/baja/:id", auth.auth, UserController.remove);
 
 
 //Exportar router
