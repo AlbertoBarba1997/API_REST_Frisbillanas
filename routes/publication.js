@@ -19,14 +19,12 @@ const uploads = multer({storage});
 
 //Definir rutas
 
-// router.get("/prueba_user", auth.auth, UserController.pruebaUser);
  router.post("/alta", auth.auth, PublicationController.create);
-// router.get("/getUser/:id", auth.auth, UserController.getUser);
-// router.get("/listUsers/:usersPorPagina?/:pagina?/", auth.auth, UserController.listUsers);
-// router.put("/update", auth.auth, UserController.update);
+ router.get("/getPublication/:id", PublicationController.getPublication);
+ router.get("/listPublications/:publicationsPorPagina?/:pagina?",PublicationController.listPublications );
 // router.post("/uploadAvatar", [auth.auth, uploads.single("file0")], UserController.uploadAvatar);
 // router.get("/getAvatar/:file", auth.auth, UserController.getAvatar);
-// router.delete("/baja/:id", auth.auth, UserController.remove);
+ router.delete("/baja/:id", auth.auth, PublicationController.remove);
 
 
 //Exportar router

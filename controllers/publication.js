@@ -1,4 +1,9 @@
+//Importar Modulos, dependencias, modelos y servicios
 const Publication= require("../models/publication")
+const mongoosePagination = require("mongoose-pagination");
+const fs = require("fs");
+const path = require("path");
+
 
 
 // 00. Acciones de prueba
@@ -57,13 +62,119 @@ const create = (req, res) => {
 
 
 // 02. Detalles publicación
+const getPublication = (req, res) => {
+
+    // Recibir el id de la publicacion por la url
+    const id = req.params.id;
+
+    // Query para sacar los datos del usuario
+    Publication.findById(id)
+        .then(async (publication) => {
+            
+            if (!publication) {
+                //La publicación no existe
+                return res.status(404).send({
+                    status: "error",
+                    message: "Publicación no encontrado"
+                })
+            } else {
+                // Devolver resultado
+                return res.status(200).send({
+                    status: "success",
+                    message: "Publicacion encontrada satisfactoriamente",
+                    publication: publication
+                });
+            }                 
+        }).catch((err) => {
+            console.log(err);
+            return res.status(500).json({ status: "error", message: "Error en la consulta." });
+        });    
+}
+
+// 03. Listar publicaciones (Ordenado por fecha mas reciente)
+const listPublications = (req, res) => {
+
+    //Controlar en que pagina estamos y cuantos elementos por pagina mostrará
+    let pagina= 1;
+    let publicacionesPorPagina= 1000;
+
+    if(req.params.pagina){
+        pagina= parseInt(req.params.pagina);
+    }
+    if(req.params.publicationsPorPagina){
+        publicacionesPorPagina= parseInt(req.params.publicationsPorPagina);
+    }
+
+    //Consulta con mongoose paginate
+    Publication.find().sort({created_at:-1}).paginate(pagina, publicacionesPorPagina, (error, publications, total) =>{
+        
+        if (error) return res.status(500).json({ status: "error", message: "Error en la consulta." });
+
+        if (!publications) return res.status(404).json({ status: "error", message: "No hay publicaciones" });
 
 
-// 03. Listar publicaciones
+        // Devolver resultado
+        return res.status(200).send({
+        status: "succes",
+        message: "Listado de publicaciones correcta",
+        pagina: pagina,
+        publicacionesPorPagina: publicacionesPorPagina,
+        total_Paginas: Math.ceil(total/publicacionesPorPagina),
+        total_Publicaciones: total,
+        publicaciones: publications
 
+        });
+
+    })
+}
 
 // 04 . Eliminar publicaciones
+const remove = (req, res) => {
 
+    // Recoger el id de la url y comprobar que viene correctamente.
+    let idEliminar = req.params.id;
+
+
+    if (!idEliminar) {
+        return res.status(400).send({
+            status: "error",
+            message: "Debe de enviar el id de la publicacion a eliminar como paramentro en la URL."
+        })
+    }
+
+    // Comprobar que el usuario que va a realizar el remove sea admin (role:1)
+    const userLogueado = req.user;
+    if (userLogueado.role != 1) {
+        return res.status(401).send({
+            status: "error",
+            message: "Para eliminar una publicacion, el usuario logueado debe de tener rol de Admin."
+        })
+    }
+
+    // Buscar ela publicación y si existe, eliminarlo
+    Publication.find({"_id":idEliminar}).remove().then(async (publicationRenmoved) => {
+
+        if (!publicationRenmoved && publicationRenmoved.length < 1) {
+            //Si no se encuentra publicación
+            return res.status(404).send({
+                status: "error",
+                message: "No se encuentra la publicación."
+            })
+        } else {
+
+            //Devolver resultado
+            return res.status(200).send({
+                message: "Publicación eliminada correctamente",
+                publication_renmoved: publicationRenmoved
+            });
+        }
+    }).catch((err) => {
+
+        console.log(err);
+        return res.status(500).json({ status: "error", message: "Error en la consulta de publicaciones." , error });
+    });
+
+}
 
 // 05. Subir ficheros
 
@@ -78,5 +189,8 @@ const create = (req, res) => {
 // Exportar acciones
 module.exports = {
     pruebaPublication,
-    create 
+    create,
+    remove,
+    getPublication,
+    listPublications
 }

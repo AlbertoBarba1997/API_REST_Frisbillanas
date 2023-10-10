@@ -413,10 +413,9 @@ const getAvatar = (req, res)=> {
 /// 08. Baja de usuario
 const remove = (req, res) => {
 
-    console.log("Entra en remove");
     // Recoger el id de la url y comprobar que viene correctamente.
     let idEliminar = req.params.id;
-    
+
 
     if (!idEliminar) {
         return res.status(400).send({
