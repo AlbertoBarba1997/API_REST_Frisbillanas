@@ -352,26 +352,63 @@ const uploadAvatar = (req, res)=> {
         })
 
     } else{
-        // Si es correcto, actualizar en la BBDD
-        User.findOneAndUpdate({id: req.user.id}, {avatar: req.file.filename}, {new:true}, (error, userUpdated) =>{
+        
+        // Si es correcto, eliminar la foto anterior si habia y actualizar en la BBDD
 
-            console.log(error);
-            if(error || !userUpdated){
-                return res.status(500).send({
-                    status: "error",
-                    message: "Error en la subida del avatar"
-                })
-            }
+        User.findOne({"_id":req.user.id}).select({})
+            .then(async (user) => {
+                console.log("user: "+user.avatar);
 
-            //Devolver respuesta
-            return res.status(200).send({
-            status: "success",
-            userUpdated: userUpdated,
-            file: req.file
+                if (!user) {
+                    //El usuario no existe
+                    return res.status(404).send({
+                        status: "error",
+                        message: "Usuario no encontrado"
+                    })
+                } else {
+                    const oldImageName = user.avatar;
+                    const oldFilePath = "./uploads/avatars/" + oldImageName;
+                
+                    console.log("entra en else, old file path: "+oldFilePath);
+                    // Si existe una imagen registrada anterior, diferente a la default, eliminarla 
+                    if (oldImageName && oldImageName != "default_avatar.png") {
+                        console.log("entra en else, old file path1: "+oldFilePath);
+                        try{
+                            await fs.unlinkSync(oldFilePath);
+                        }catch(err){
+                            //Si hay error posiblemente es porque no existe ya, no pasa nada.
+                            
+                        }
+                        
+                        //Actualizar la BBDD con nombre del nuevo avatar
+                        User.findOneAndUpdate({ id: req.user.id }, { avatar: req.file.filename }, { new: true }, (error, userUpdated) => {
+
+                            
+                            if (error || !userUpdated) {
+                                return res.status(500).send({
+                                    status: "error",
+                                    message: "Error en la subida del avatar"
+                                })
+                            }
+
+                            //Devolver respuesta
+                            return res.status(200).send({
+                                status: "success",
+                                userUpdated: userUpdated,
+                                file: req.file
+                            });
+                        })
+
+
+                    }
+
+                }
+            }).catch((err) => {
+                console.log(err);
+                return res.status(500).json({ status: "error", message: "Error en la consulta", error: err });
             });
-        })
-     
-    }     
+
+    }
 }
 
 /// 07. Obtener avatar

@@ -176,12 +176,112 @@ const remove = (req, res) => {
 
 }
 
-// 05. Subir ficheros
+// 05. Subir imagen 
+const uploadImage = (req, res)=> {
+
+    // Recoger el id de la url y comprobar que viene correctamente.
+    const publicationId = req.params.id;
+
+    if (!publicationId) {
+        return res.status(400).send({
+            status: "error",
+            message: "Debe de enviar el id de la publicacion al que quiere subir una foto como paramentro en la URL."
+        })
+    }
+
+    // Recoger el fichero de imagen y comprobar que existe
+    if(!req.file){
+        return res.status(404).send({
+            status: "error",
+            message: "La peticion no incluye la imagen"
+        })
+    }
+    // Conseguir el nombre del archivo
+    let image = req.file.originalname;
+
+    // Sacar la extension del archivo
+    const imageSplit = image.split("\.");
+    const extension = imageSplit[1].toLowerCase();
+
+    console.log(req.file.size);
+    // Comprobar extension
+    if(extension != "png" && extension != "jpg" && extension != "jpeg" && extension != "gift"){
+        
+        // SI no es correcto, borrar archivo
+        const filePath = req.file.path; //Ruta donde segurarda el archivo
+        fs.unlinkSync(filePath)
+        return res.status(400).send({
+            status: "error",
+            message: "Extension del fichero invalida"
+        })
+
+    } else if( req.file.size > 15000000){
+        // SI el archivo pesa mas de 15MB lo borra
+        const filePath = req.file.path; //Ruta donde segurarda el archivo
+
+        fs.unlinkSync(filePath)
+        return res.status(400).send({
+            status: "error",
+            message: "El archivo pesa mas de 15MB, sube un archivo menos pesado"
+        })
+
+    } else{
+        // Si es correcto, actualizar en la BBDD
+        Publication.findOneAndUpdate({id: publicationId}, {file: req.file.filename.toLowerCase()}, {new:true}, (error, publicationUpdated) =>{
+
+            console.log(error);
+            if(error || !publicationUpdated){
+                return res.status(500).send({
+                    status: "error",
+                    message: "Error en la subida de la imagen",
+                    error: error
+                })
+            }
+
+            //Devolver respuesta
+            return res.status(200).send({
+            status: "success",
+            publicationUpdated: publicationUpdated,
+            file: req.file
+            });
+        })
+     
+    }     
+}
+
+/// 06. Devolver archivo multimedia/ imagenes
+
+const getImage = (req, res)=> {
+    //Sacar el parametro de la url
+    const file = req.params.file;
+
+    // Montar el path real de la imagen
+    const filepath= "./uploads/publications/"+file;
+    console.log(filepath);
+
+    //Comprobar que existe
+    fs.stat(filepath, (error, exist)=> {
+        if(!exist){
+            return res.status(404).send({
+                status: "error",
+                message: "No existe la imagen"
+            })
+        }
+        if(error){
+            return res.status(404).send({
+                status: "error",  
+                message: "Error al consular la BBDD",
+                error: error
+            })
+        }
+        //Devolver el archivo
+        return res.sendFile(path.resolve(filepath));  
+        //El path es un modulo que con su metodo .resolve me da la ruta absoluta
+        
+    })
 
 
-// 06. Devolver archivo multimedia/ imagenes
-
-
+}
 
 
 
@@ -192,5 +292,7 @@ module.exports = {
     create,
     remove,
     getPublication,
-    listPublications
+    listPublications,
+    uploadImage,
+    getImage
 }

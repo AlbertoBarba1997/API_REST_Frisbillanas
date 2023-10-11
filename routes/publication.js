@@ -10,7 +10,7 @@ const storage = multer.diskStorage({
         cb(null, "./uploads/publications/")
     },
     filename: (req, file, cb) => {
-        cb(null, "publication-"+Date.now()+"-"+file.originalname);
+        cb(null, "publication-"+Date.now()+"-"+file.originalname.toLocaleLowerCase());
     }    
 });
 
@@ -22,8 +22,8 @@ const uploads = multer({storage});
  router.post("/alta", auth.auth, PublicationController.create);
  router.get("/getPublication/:id", PublicationController.getPublication);
  router.get("/listPublications/:publicationsPorPagina?/:pagina?",PublicationController.listPublications );
-// router.post("/uploadAvatar", [auth.auth, uploads.single("file0")], UserController.uploadAvatar);
-// router.get("/getAvatar/:file", auth.auth, UserController.getAvatar);
+ router.post("/uploadImage/:id", [auth.auth, uploads.single("file0")], PublicationController.uploadImage);
+ router.get("/getImage/:file", PublicationController.getImage);
  router.delete("/baja/:id", auth.auth, PublicationController.remove);
 
 
