@@ -377,7 +377,6 @@ const uploadAvatar = (req, res)=> {
                             await fs.unlinkSync(oldFilePath);
                         }catch(err){
                             //Si hay error posiblemente es porque no existe ya, no pasa nada.
-                            
                         }
                         
                         //Actualizar la BBDD con nombre del nuevo avatar
