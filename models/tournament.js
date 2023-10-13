@@ -1,7 +1,7 @@
 const { Schema, model} =require("mongoose");
 
 const TournamentSchema = Schema({
-    tittle: {
+    name: {
         type: String,
         required: true
     },
@@ -11,7 +11,7 @@ const TournamentSchema = Schema({
     },
     date: {
         type: Date,
-        default: null
+        required: true
     },
 
     place: {
@@ -21,8 +21,8 @@ const TournamentSchema = Schema({
 
     // La modalidad será 1=playa , 2=cesped
     modality: {
-        type: String,
-        required: true
+        type: Number,
+        default: 1
     },
 
     // El genero será 0=Mixto , 1=Female, 2=Male

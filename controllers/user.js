@@ -380,7 +380,7 @@ const uploadAvatar = (req, res)=> {
                         }
                         
                         //Actualizar la BBDD con nombre del nuevo avatar
-                        User.findOneAndUpdate({ id: req.user.id }, { avatar: req.file.filename }, { new: true }, (error, userUpdated) => {
+                        User.findOneAndUpdate({"_id": req.user.id }, { avatar: req.file.filename }, { new: true }, (error, userUpdated) => {
 
                             
                             if (error || !userUpdated) {

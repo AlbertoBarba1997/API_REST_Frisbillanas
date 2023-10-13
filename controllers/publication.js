@@ -227,7 +227,7 @@ const uploadImage = (req, res)=> {
 
     } else{
         // Si es correcto, actualizar en la BBDD
-        Publication.findOneAndUpdate({id: publicationId}, {file: req.file.filename.toLowerCase()}, {new:true}, (error, publicationUpdated) =>{
+        Publication.findOneAndUpdate({"_id": publicationId}, {file: req.file.filename.toLowerCase()}, {new:true}, (error, publicationUpdated) =>{
 
             console.log(error);
             if(error || !publicationUpdated){
