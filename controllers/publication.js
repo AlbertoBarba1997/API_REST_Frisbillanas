@@ -1,5 +1,5 @@
 //Importar Modulos, dependencias, modelos y servicios
-const Publication= require("../models/publication")
+const Publication= require("../models/publication");
 const mongoosePagination = require("mongoose-pagination");
 const fs = require("fs");
 const path = require("path");

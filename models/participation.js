@@ -7,12 +7,12 @@ const ParticipationSchema = Schema({
     },
     user: {
         type: Schema.ObjectId,
-        default: "User"
+        ref: "User"
     },
     create_at:{
         type: Date,
         default: Date.now
-    }
+    }  
 })
 
 module.exports = model("Participation" , ParticipationSchema, "participations");

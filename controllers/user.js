@@ -1,6 +1,6 @@
 //Importar Modulos, dependencias, modelos y servicios
 const bcrypt = require("bcrypt");
-const User = require("../models/User");
+const User = require("../models/user");
 const jwt = require("../services/jwt");
 const mongoosePagination = require("mongoose-pagination");
 const fs = require("fs");
@@ -133,7 +133,7 @@ const login = (req, res)=> {
 
                 // Devolver token y datos del usuario
                 return res.status(200).send({
-                    status: "succes",
+                    status: "success",
                     message: "Log-in correcto.",
                     user:{
                         id: user._id,
@@ -173,7 +173,7 @@ const getUser = (req, res) => {
             } else {
                 // Devolver resultado
                 return res.status(200).send({
-                    status: "succes",
+                    status: "success",
                     message: "Usuario encontrado satisfactoriamente",
                     user: user
                 });
@@ -209,7 +209,7 @@ const listUsers = (req, res) => {
 
         // Devolver resultado
         return res.status(200).send({
-        status: "succes",
+        status: "success",
         message: "Usuario encontrado satisfactoriamente",
         pagina: pagina,
         usersPorPagina: usersPorPagina,

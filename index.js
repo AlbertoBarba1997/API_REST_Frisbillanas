@@ -26,13 +26,11 @@ app.use(express.urlencoded({extended:true}));
 //Cargar conf rutas
 const UserRoutes = require("./routes/user");
 const PublicationRoutes = require("./routes/publication");
-const ContentRoutes = require("./routes/content");
 const TournamentRoutes = require("./routes/tournament");
 const ParticipationRoutes = require("./routes/participation");
 
 app.use("/api/usuarios", UserRoutes);
 app.use("/api/publicaciones", PublicationRoutes);
-app.use("/api/contenido", ContentRoutes);
 app.use("/api/torneos", TournamentRoutes );
 app.use("/api/participaciones", ParticipationRoutes );
 

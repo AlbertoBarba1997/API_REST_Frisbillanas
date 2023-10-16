@@ -1,5 +1,5 @@
 //Importar Modulos, dependencias, modelos y servicios
-const Tournament= require("../models/tournament")
+const Tournament= require("../models/tournament");
 const mongoosePagination = require("mongoose-pagination");
 const fs = require("fs");
 const path = require("path");
@@ -26,8 +26,7 @@ const create = (req, res) => {
     if (!params.name || !params.place || !params.date ) {
         return res.status(400).send({
             status: "error",
-            message: "Faltan datos por enviar el 'name', 'place' o 'date' del torneo por 'Body'",
-            pàrams : req.body
+            message: "Faltan datos por enviar el 'name', 'place' o 'date' del torneo por 'Body'"
         });
     }
 
@@ -159,13 +158,7 @@ const listTournaments = (req, res) => {
 
         })
     }
-    
 
-
-
-
-    
-   
     
 }
 
