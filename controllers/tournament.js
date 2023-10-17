@@ -1,5 +1,6 @@
 //Importar Modulos, dependencias, modelos y servicios
 const Tournament= require("../models/tournament");
+const Participation= require("../models/participation");
 const mongoosePagination = require("mongoose-pagination");
 const fs = require("fs");
 const path = require("path");
@@ -58,10 +59,11 @@ const create = (req, res) => {
 const getTournament = (req, res) => {
 
     // Recibir el id de el torneo por la url
-    const id = req.params.id;
+    const idTournament = req.params.id;
+    const idUser = req.user.id;
 
     // Query para sacar los datos del usuario
-    Tournament.findById(id)
+    Tournament.findById(idTournament)
         .then(async (tournament) => {
             
             if (!tournament) {
@@ -71,11 +73,17 @@ const getTournament = (req, res) => {
                     message: "torneo no encontrado"
                 })
             } else {
+                // Paso previo, comprobar si el usuario logueado participa en el torneo el torneo
+                let participa= await obtenerParticipacion(idTournament, idUser);
+
                 // Devolver resultado
                 return res.status(200).send({
                     status: "success",
                     message: "Publicacion encontrada satisfactoriamente",
+                    participa: participa,
                     tournament: tournament
+                    
+                   
                 });
             }                 
         }).catch((err) => {
@@ -335,6 +343,19 @@ function obtenerQueryBusqueda(req){
 
 }
 
+async function obtenerParticipacion(idTournament, idUser){
+    let participa=false;
+    try{
+        let participation= await Participation.find({ user:idUser , tournament:idTournament}).exec();
+        if(participation.length>0) participa=true;
+    }catch (error){
+        return false;
+    }
+
+    return participa;
+
+
+}
 
 
 

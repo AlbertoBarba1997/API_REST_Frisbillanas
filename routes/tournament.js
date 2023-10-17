@@ -21,7 +21,7 @@ const uploads = multer({storage});
 
  router.post("/alta", auth.auth, TournamentController.create);
  router.delete("/baja/:id", auth.auth, TournamentController.remove);
- router.get("/getTournament/:id", TournamentController.getTournament);
+ router.get("/getTournament/:id", auth.auth, TournamentController.getTournament);
  router.get("/listTournaments/:publicationsPorPagina?/:pagina?",TournamentController.listTournaments );
  router.post("/uploadImage/:id", [auth.auth, uploads.single("file0")], TournamentController.uploadImage);
  router.get("/getImage/:file", TournamentController.getImage);
