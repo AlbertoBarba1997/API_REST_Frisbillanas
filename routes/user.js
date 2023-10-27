@@ -18,7 +18,7 @@ const uploads = multer({storage});
 
 
 //Definir rutas
-router.get("/login", UserController.login);                        //Es necesario logear para hacer la gran mayoria de peticiones restantes, que requeriran del token en el mdlw de auth.
+router.post("/login", UserController.login);                        //Es necesario logear para hacer la gran mayoria de peticiones restantes, que requeriran del token en el mdlw de auth.
 
 router.get("/prueba_user", auth.auth, UserController.pruebaUser);
 router.post("/alta", auth.auth, UserController.register);

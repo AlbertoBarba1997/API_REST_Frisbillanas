@@ -109,7 +109,7 @@ const login = (req, res)=> {
     // Buscar en la bbdd si existe email
     User.findOne({ email: params.email})
         .then(async (user) => {
-            console.log("user: " + user);
+            console.log("Usuario logueado: " + user.name);
             if (!user) {
                 //El usuario no existe
                 return res.status(404).send({
@@ -138,7 +138,8 @@ const login = (req, res)=> {
                     user:{
                         id: user._id,
                         name: user.name,
-                        email: user.email
+                        email: user.email,
+                        avatar: user.avatar
                     },
                     token: token    
                 });

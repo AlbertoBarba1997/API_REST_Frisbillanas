@@ -82,8 +82,7 @@ const getTournament = (req, res) => {
                     message: "Publicacion encontrada satisfactoriamente",
                     participa: participa,
                     tournament: tournament
-                    
-                   
+            
                 });
             }                 
         }).catch((err) => {
