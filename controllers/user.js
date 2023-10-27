@@ -109,16 +109,18 @@ const login = (req, res)=> {
     // Buscar en la bbdd si existe email
     User.findOne({ email: params.email})
         .then(async (user) => {
-            console.log("Usuario logueado: " + user.name);
+            
             if (!user) {
+                console.log("usuario no encontrado");
                 //El usuario no existe
                 return res.status(404).send({
                     status: "error",
                     message: "El usuario no está registrado"
                 })
             } else {
+                console.log("Usuario logueado: " + user.name);
                 // Comprobar su contraseña (cifrada)
-                console.log(" params.pasword " + params.password  + " user.password " +user.password);
+                
                 const pwd = bcrypt.compareSync(params.password, user.password);
 
                 if(!pwd){
