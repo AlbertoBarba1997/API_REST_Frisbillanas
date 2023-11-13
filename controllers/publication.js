@@ -203,7 +203,6 @@ const uploadImage = (req, res)=> {
     const imageSplit = image.split("\.");
     const extension = imageSplit[1].toLowerCase();
 
-    console.log(req.file.size);
     // Comprobar extension
     if(extension != "png" && extension != "jpg" && extension != "jpeg" && extension != "gift"){
         
@@ -257,7 +256,7 @@ const getImage = (req, res)=> {
 
     // Montar el path real de la imagen
     const filepath= "./uploads/publications/"+file;
-    console.log(filepath);
+    
 
     //Comprobar que existe
     fs.stat(filepath, (error, exist)=> {
