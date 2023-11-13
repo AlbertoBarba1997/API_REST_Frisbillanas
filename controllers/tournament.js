@@ -105,9 +105,6 @@ const listTournaments = (req, res) => {
         torneosPorPagina= parseInt(req.params.tournamentsPorPagina);
     }
 
-
-
-
     //Comprueba si trae algun parametro de búsqueda
     const searchParams=req.body;
     let haveSearchParams=false;
@@ -117,6 +114,12 @@ const listTournaments = (req, res) => {
         haveSearchParams=true;
         query= obtenerQueryBusqueda(req);
     }
+
+    if(searchParams.params.name ||searchParams.params.modality){
+        haveSearchParams=true;
+        query= obtenerQueryBusquedaParams(req);
+    }
+
     
     
     if (haveSearchParams) {
@@ -327,6 +330,24 @@ const getImage = (req, res)=> {
 function obtenerQueryBusqueda(req){
     let query={};
     const { name, gender, modality} = req.body;
+    /*
+    query= {
+        $and: [
+            
+        ]
+    };
+    */
+   if(name) query.name= { $regex: new RegExp(name, 'i') };
+   if(gender) query.gender = gender;
+   if(modality) query.modality = modality;
+    return query;
+
+
+}
+
+function obtenerQueryBusquedaParams(req){
+    let query={};
+    const { name, gender, modality} = req.body.params;
     /*
     query= {
         $and: [
